@@ -1,11 +1,17 @@
+import 'package:farmer/Screens/RecievedOrders.dart';
+import 'package:farmer/Screens/RequestedOrders.dart';
+import 'package:farmer/widgets/speedDial2.dart';
 import 'package:farmer/widgets/speed_dial.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_google_maps/flutter_google_maps.dart';
 import 'widgets/form.dart';
-import 'Models/products.dart';
-import 'package:farmer/Models/buyer.dart';
+import 'Screens/products.dart';
+import 'package:farmer/Screens/buyer.dart';
+import 'package:farmer/Screens/profile.dart';
+
+import 'widgets/routeAnimation.dart';
 
 void main() async {
   GoogleMap.init('AIzaSyDCBKhLBuHhTwcBTufjAykyFBay8WILxmI');
@@ -20,7 +26,10 @@ void main() async {
       '/second': (_) => Second(),
       '/Gmap': (_) => Gmap(),
       '/form': (_) => FormAdd(),
-      '/products': (_) => MyProducts()
+      '/products': (_) => MyProducts(),
+      '/recieved': (_) => RecievedOrders(),
+      '/requested': (_) => RequestedOrders(),
+      '/profile': (_) => ProfilePage()
     },
   ));
 }
@@ -49,6 +58,7 @@ Map<String, dynamic> seller = Map();
 
 class MyHomePageState extends State<MyHomePage> {
   int c = 0;
+  var types = ["Fruits", "Vegetables", "Kharif Cereals", "Rabi Cereals"];
   dynamic mp = List();
   var fs = FirebaseFirestore.instance;
   List<Widget> wid = List();
@@ -96,11 +106,10 @@ class MyHomePageState extends State<MyHomePage> {
             name = mp[i]['Name'];
             url = mp[i]['Image'];
             if (flag)
-              Navigator.pushNamed(context, '/form');
+              Navigator.push(context, RouteAnimator(FormAdd()));
             else {
               Sellers = mp[i]['Sellers'];
-              //getSeller(Sellers[0]);
-              Navigator.pushNamed(context, '/second');
+              Navigator.push(context, RouteAnimator(Second()));
             }
           },
           child: Column(children: <Widget>[
@@ -165,12 +174,17 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   // ignore: non_constant_identifier_names
-  Widget build_but(String cat, String n) {
+  Widget build_but(int point, String n) {
+    c = point;
     return FloatingActionButton(
-        backgroundColor: catagory == cat ? Colors.red : Colors.blue,
-        heroTag: cat[0],
+        backgroundColor: catagory == types[c]
+            ? Colors.red
+            : flag
+                ? Colors.greenAccent
+                : Colors.orange[700],
+        heroTag: types[c],
         child: Text(n),
-        onPressed: () => setCatagory(cat),
+        onPressed: () => setCatagory(types[point]),
         shape: RoundedRectangleBorder(
             borderRadius: new BorderRadius.circular(5.0)));
   }
@@ -180,6 +194,7 @@ class MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Farmer Mate"),
+        backgroundColor: flag ? Color(0xff14cc73) : Colors.orange,
         automaticallyImplyLeading: false,
         actions: <Widget>[
           Padding(
@@ -188,7 +203,7 @@ class MyHomePageState extends State<MyHomePage> {
               children: [
                 FloatingActionButton(
                   heroTag: 'a',
-                  backgroundColor: flag ? Colors.green : Colors.grey,
+                  backgroundColor: flag ? Colors.redAccent : Colors.grey,
                   child: Text('Sell'),
                   onPressed: () {
                     flag = true;
@@ -201,7 +216,7 @@ class MyHomePageState extends State<MyHomePage> {
                 ),
                 FloatingActionButton(
                   heroTag: 'b',
-                  backgroundColor: flag ? Colors.grey : Colors.green,
+                  backgroundColor: flag ? Colors.grey : Colors.redAccent,
                   child: Text('Buy'),
                   onPressed: () {
                     flag = false;
@@ -217,50 +232,67 @@ class MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: Container(
-        color: Colors.blue[100],
-        child: Column(
-          children: <Widget>[
-            SizedBox(
-              height: 10,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                SizedBox(
-                  width: 60,
-                  child: build_but("Fruits", "Fruits"),
-                ),
-                SizedBox(
-                  width: 90,
-                  child: build_but("Vegetables", "Vegetables"),
-                ),
-                build_but("Kharif Cereals", "Kharif"),
-                build_but("Rabi Cereals", "Rabi"),
-                FloatingActionButton(
-                  heroTag: '5',
-                  child: Text('test'),
-                  onPressed: () => Navigator.pushNamed(context, '/products'),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(5.0)),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Expanded(
-                child: ListView.builder(
-              scrollDirection: Axis.vertical,
-              itemCount: wid.length,
-              itemBuilder: (context, index) {
-                return wid[index];
-              },
-            )),
-          ],
+      body: GestureDetector(
+        onPanUpdate: (details) {
+          if (c == 4) c = 0;
+          if (details.delta.dx < -60) {
+            c++;
+            if (c > 3) c = 0;
+            setCatagory(types[c]);
+          }
+          if (details.delta.dx > 60) {
+            c--;
+            if (c < 0) c = 3;
+            setCatagory(types[c]);
+          }
+        },
+        child: Container(
+          color: flag ? Colors.white : Colors.white,
+          child: Column(
+            children: <Widget>[
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  SizedBox(
+                    width: 60,
+                    child: build_but(0, "Fruits"),
+                  ),
+                  SizedBox(
+                    width: 90,
+                    child: build_but(1, "Vegetables"),
+                  ),
+                  build_but(2, "Kharif"),
+                  build_but(3, "Rabi"),
+                  FloatingActionButton(
+                    heroTag: '5',
+                    child: Text('test'),
+                    backgroundColor:
+                        flag ? Colors.greenAccent : Colors.orange[700],
+                    onPressed: () => Navigator.pushNamed(context, '/products'),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: new BorderRadius.circular(5.0)),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Expanded(
+                  child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                itemCount: wid.length,
+                itemBuilder: (context, index) {
+                  return wid[index];
+                },
+              )),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: Dial(),
+      floatingActionButton: flag ? Dial() : Dial2(),
     );
   }
 }

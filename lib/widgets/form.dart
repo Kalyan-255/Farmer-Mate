@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoder/geocoder.dart';
 
 final _weightKey = GlobalKey<FormState>();
 final _priceKey = GlobalKey<FormState>();
+Position pos;
 
 class FormAdd extends StatefulWidget {
   @override
@@ -17,12 +20,25 @@ class _FormAddState extends State<FormAdd> {
   //Widget back;
   List<Widget> colWidgets = List();
   var fs = FirebaseFirestore.instance;
+
+  getPos() async {
+    pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    // var adr = await Geocoder.local
+    //     .findAddressesFromCoordinates(Coordinates(pos.latitude, pos.longitude));
+    // print(adr.first.addressLine);
+    // var dis = Geolocator.distanceBetween(18.6577098,77.8897229,77.8897229,77.8897229);
+    print(pos.longitude);
+    print(pos.latitude);
+  }
+
   void addData(String mail) async {
     String id;
     var ref = await fs.collection('Products').doc(catagory).get();
     var refSel = await fs.collection('Sellers').doc(mail).get();
     var ar = refSel.data()['Products'];
-    Prod prod = Prod(wt, pr, catagory, name, url, mail);
+    Prod prod =
+        Prod(wt, pr, catagory, name, url, mail, pos.latitude, pos.longitude);
     await fs
         .collection("Items")
         .add(prod.getMap())
@@ -77,6 +93,7 @@ class _FormAddState extends State<FormAdd> {
                   onPressed: () {
                     if (!(!_weightKey.currentState.validate() ||
                         !_priceKey.currentState.validate())) {
+                      getPos();
                       addData("kalyanburriwar@gmail.com");
                       colWidgets.add(Text('Your item is kept for sale'));
                       colWidgets.add(makeButton());
@@ -156,9 +173,10 @@ String validDouble(value) {
 
 class Prod {
   double weight;
-  double price;
+  double price, lat, lon;
   String cat, product, imUrl, mail;
-  Prod(this.weight, this.price, this.cat, this.product, this.imUrl, this.mail);
+  Prod(this.weight, this.price, this.cat, this.product, this.imUrl, this.mail,
+      this.lat, this.lon);
   Map<String, dynamic> getMap() {
     return {
       'Weight': weight,
@@ -166,7 +184,8 @@ class Prod {
       'Catagory': cat,
       'Name': product,
       'imUrl': imUrl,
-      'seller': mail
+      'seller': mail,
+      'Position': {'Latitude': lat, 'Longitude': lon}
     };
   }
 }
