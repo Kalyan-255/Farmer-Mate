@@ -50,14 +50,18 @@ void addPoduct(String name, String url, double price, String cat, String mail) {
   fs.collection("Catagories").doc(cat).set({mail + name: y});
 }
 
-void addBuyer(String mail, String n, double lat, double lon) {
-  fs.collection('Buyers').doc(mail).set(
+void addBuyer(
+    String mail, String n, double lat, double lon, String pno, String adr) {
+  fs.collection('Sellers').doc(mail).set(
     {
       "Name": n,
-      "Amount": 0,
+      "Earnings": 0,
       "Coordinates": {'Latitude': lat, 'Longitude': lon},
-      "Products History": [],
-      "Recieved Orders": []
+      "Products": [],
+      "Recieved Orders": {},
+      "Requested Orders": {},
+      "Accepted Orders": {},
+      "Address": adr
     },
   );
 }

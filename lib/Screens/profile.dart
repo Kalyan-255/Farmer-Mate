@@ -101,13 +101,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(
                     height: 150,
                   ),
-                  makeRow("NUMBER", "8466952106",
+                  makeRow("NUMBER", seller["PNO"],
                       Icon(Icons.phone, color: Color(0xff490b63))),
-                  makeRow("ADDRESS", "Bodhan",
+                  makeRow("ADDRESS", seller["Address"],
                       Icon(Icons.location_on, color: Color(0xff490b63))),
                   makeRow(
                       "EARNINGS",
-                      "10000 Rs",
+                      seller["Earnings"].toString(),
                       Icon(CupertinoIcons.money_dollar_circle_fill,
                           color: Color(0xff490b63))),
                 ],
@@ -136,7 +136,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   Center(
                       child: Text(
-                    "Burri Kalyan",
+                    seller["Name"],
                     style: TextStyle(fontSize: 30, color: Colors.white),
                     overflow: TextOverflow.visible,
                   )),
@@ -145,7 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   Center(
                       child: Text(
-                    "kalyanburriwar@gmail.com",
+                    mail,
                     style: TextStyle(fontSize: 20, color: Colors.white),
                   )),
                   SizedBox(

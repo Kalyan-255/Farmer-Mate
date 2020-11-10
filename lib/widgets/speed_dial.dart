@@ -1,9 +1,11 @@
-import 'package:farmer/Screens/RecievedOrders.dart';
-import 'package:farmer/Screens/products.dart';
+import 'package:farmer/Screens/Orders/RecievedOrders.dart';
+import 'package:farmer/Screens/Orders/products.dart';
 import 'package:farmer/Screens/profile.dart';
 import 'package:farmer/widgets/routeAnimation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Dial extends StatefulWidget {
   @override
@@ -11,6 +13,14 @@ class Dial extends StatefulWidget {
 }
 
 class _DialState extends State<Dial> {
+  var auth = FirebaseAuth.instance;
+  void logOut() async {
+    var pref = await SharedPreferences.getInstance();
+    pref.setBool('loggedIn', false);
+    await auth.signOut();
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
   @override
   Widget build(BuildContext context) {
     return SpeedDial(
@@ -22,6 +32,14 @@ class _DialState extends State<Dial> {
       visible: true,
       curve: Curves.bounceIn,
       children: [
+        SpeedDialChild(
+          child: Icon(Icons.logout, color: Colors.white),
+          backgroundColor: Colors.deepOrange,
+          onTap: () => logOut(),
+          label: 'Logout',
+          labelStyle: TextStyle(fontWeight: FontWeight.w500),
+          labelBackgroundColor: Colors.deepOrangeAccent,
+        ),
         SpeedDialChild(
           child: Icon(Icons.add_shopping_cart, color: Colors.white),
           backgroundColor: Colors.deepOrange,

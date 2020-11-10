@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geocoder/geocoder.dart';
 
 final _weightKey = GlobalKey<FormState>();
 final _priceKey = GlobalKey<FormState>();
@@ -17,17 +16,17 @@ double wt, pr;
 
 class _FormAddState extends State<FormAdd> {
   bool show = true;
-  //Widget back;
   List<Widget> colWidgets = List();
   var fs = FirebaseFirestore.instance;
+
+  void initState() {
+    super.initState();
+    getPos();
+  }
 
   getPos() async {
     pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    // var adr = await Geocoder.local
-    //     .findAddressesFromCoordinates(Coordinates(pos.latitude, pos.longitude));
-    // print(adr.first.addressLine);
-    // var dis = Geolocator.distanceBetween(18.6577098,77.8897229,77.8897229,77.8897229);
     print(pos.longitude);
     print(pos.latitude);
   }
@@ -93,8 +92,7 @@ class _FormAddState extends State<FormAdd> {
                   onPressed: () {
                     if (!(!_weightKey.currentState.validate() ||
                         !_priceKey.currentState.validate())) {
-                      getPos();
-                      addData("kalyanburriwar@gmail.com");
+                      addData("chethan94@gmail.com");
                       colWidgets.add(Text('Your item is kept for sale'));
                       colWidgets.add(makeButton());
                       show = false;
@@ -181,7 +179,7 @@ class Prod {
     return {
       'Weight': weight,
       'Price': price,
-      'Catagory': cat,
+      'Category': cat,
       'Name': product,
       'imUrl': imUrl,
       'seller': mail,

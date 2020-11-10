@@ -1,8 +1,7 @@
-import 'package:farmer/Screens/RequestedOrders.dart';
+import 'package:farmer/Screens/Orders/RequestedOrders.dart';
+import 'package:farmer/Screens/Orders/acceptedOrders.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:farmer/Screens/RecievedOrders.dart';
-import 'package:farmer/Screens/products.dart';
 import 'package:farmer/Screens/profile.dart';
 import 'package:farmer/widgets/routeAnimation.dart';
 
@@ -26,8 +25,7 @@ class _DialState2 extends State<Dial2> {
         SpeedDialChild(
           child: Icon(Icons.add_shopping_cart, color: Colors.white),
           backgroundColor: Colors.deepOrange,
-          onTap: () =>
-              Navigator.push(context, RouteAnimator(RequestedOrders())),
+          onTap: () => Navigator.push(context, RouteAnimator(AcceptedOrders())),
           label: 'Accepted Orders',
           labelStyle: TextStyle(fontWeight: FontWeight.w500),
           labelBackgroundColor: Colors.deepOrangeAccent,

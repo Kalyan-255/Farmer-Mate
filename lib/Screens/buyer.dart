@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:farmer/main.dart';
 import 'package:flutter/material.dart';
-import 'Details.dart';
+import 'Second.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -64,8 +64,8 @@ class _SecondState extends State<Second> {
         children: [
           GestureDetector(
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => UserDetails(seller["seller"], id)));
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => UserDetails(seller, id)));
               },
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.9,
