@@ -34,6 +34,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget makeRow(String head, String cont, Icon ic) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
@@ -53,15 +54,14 @@ class _ProfilePageState extends State<ProfilePage> {
         SizedBox(
           height: 10,
         ),
-        Row(
-          children: [
-            SizedBox(
-              width: 30,
-            ),
-            Text(cont,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Color(0xff490b63))),
-          ],
+        Padding(
+          padding: EdgeInsets.fromLTRB(30, 0, 0, 0),
+          child: Text(
+            cont,
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: Color(0xff490b63)),
+            overflow: TextOverflow.visible,
+          ),
         ),
         SizedBox(
           height: 30,
@@ -107,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Icon(Icons.location_on, color: Color(0xff490b63))),
                   makeRow(
                       "EARNINGS",
-                      seller["Earnings"].toString(),
+                      seller["Earnings"].toString() + " Rs",
                       Icon(CupertinoIcons.money_dollar_circle_fill,
                           color: Color(0xff490b63))),
                 ],

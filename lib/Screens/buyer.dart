@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:farmer/Screens/Seller.dart';
 import 'package:farmer/main.dart';
 import 'package:flutter/material.dart';
 import 'Second.dart';
@@ -36,7 +37,11 @@ class _SecondState extends State<Second> {
   }
 
   getDist(double lat, double lon) {
-    var dis = Geolocator.distanceBetween(18.6577098, 77.8897229, lat, lon);
+    var dis = Geolocator.distanceBetween(
+        seller["Coordinates"]["Latitude"].toDouble(),
+        seller["Coordinates"]["Longitude"].toDouble(),
+        lat,
+        lon);
     return dp(dis * (1.609 / 1000), 2);
   }
 

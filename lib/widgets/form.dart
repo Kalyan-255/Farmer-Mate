@@ -1,3 +1,4 @@
+import 'package:farmer/Screens/Orders/products.dart';
 import 'package:flutter/material.dart';
 import '../main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -36,6 +37,7 @@ class _FormAddState extends State<FormAdd> {
     var ref = await fs.collection('Products').doc(catagory).get();
     var refSel = await fs.collection('Sellers').doc(mail).get();
     var ar = refSel.data()['Products'];
+    var notifications = refSel.data()['Notifications'];
     Prod prod =
         Prod(wt, pr, catagory, name, url, mail, pos.latitude, pos.longitude);
     await fs
@@ -43,8 +45,17 @@ class _FormAddState extends State<FormAdd> {
         .add(prod.getMap())
         .then((value) => id = value.id);
     ar.add(id);
-    await fs.collection('Sellers').doc(mail).update({'Products': ar});
-    var p = Map.from(ref.data()[name]);
+    notifications.add({
+      'Type': "Your products",
+      'Disc': "Your product $name of $wt Kg is kept for sale for Rs $pr /Kg",
+      'Time': DateTime.now().toString()
+    });
+    await fs
+        .collection('Sellers')
+        .doc(mail)
+        .update({'Products': ar, 'Notifications': notifications});
+    print(name);
+    var p = ref.data()[name];
     var sellers = p["Sellers"] ?? [];
     sellers.add(id);
     fs.collection('Products').doc(catagory).set({
@@ -92,7 +103,7 @@ class _FormAddState extends State<FormAdd> {
                   onPressed: () {
                     if (!(!_weightKey.currentState.validate() ||
                         !_priceKey.currentState.validate())) {
-                      addData("chethan94@gmail.com");
+                      addData(mail);
                       colWidgets.add(Text('Your item is kept for sale'));
                       colWidgets.add(makeButton());
                       show = false;

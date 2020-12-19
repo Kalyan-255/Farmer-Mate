@@ -34,10 +34,9 @@ class SignupState extends State<Signup> {
     try {
       await auth.createUserWithEmailAndPassword(
           email: mail, password: password2);
-      addUser(mail, "kalyan", pos.latitude, pos.longitude, pno, address);
-      var pref = await SharedPreferences.getInstance();
-      pref.setBool('loggedIn', true);
-      Navigator.pushReplacementNamed(context, '/home');
+      await auth.currentUser.sendEmailVerification();
+      addUser(mail, nickName, pos.latitude, pos.longitude, pno, address);
+      Navigator.pushReplacementNamed(context, '/verify');
     } catch (e) {
       print('fhdghdj');
       print(e.toString());
@@ -66,7 +65,9 @@ class SignupState extends State<Signup> {
         "Requested Orders": {},
         "Accepted Orders": {},
         "Address": adr,
-        "PNO": pno
+        "PNO": pno,
+        "History": [],
+        "Notifications": []
       },
     );
   }
@@ -172,38 +173,36 @@ class SignupState extends State<Signup> {
                   width: 280,
                   height: 450,
                   color: Colors.amber,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: <Widget>[
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text("Signup",
-                            style: TextStyle(color: Colors.blue, fontSize: 25)),
-                        buildName(),
-                        buildEmail(),
-                        buildPass(),
-                        buildPno(),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        SizedBox(
-                            width: 90,
-                            height: 50,
-                            child: FloatingActionButton(
-                              onPressed: () async {
-                                if (_formMail1.currentState.validate() &&
-                                    _formPno.currentState.validate() &&
-                                    _formPass1.currentState.validate()) {
-                                  signUp();
-                                }
-                              },
-                              child: Text("Signup",
-                                  style: TextStyle(fontSize: 16)),
-                              shape: RoundedRectangleBorder(),
-                            )),
-                      ],
-                    ),
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text("Signup",
+                          style: TextStyle(color: Colors.blue, fontSize: 25)),
+                      buildName(),
+                      buildEmail(),
+                      buildPass(),
+                      buildPno(),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      SizedBox(
+                          width: 90,
+                          height: 50,
+                          child: FloatingActionButton(
+                            onPressed: () async {
+                              if (_formMail1.currentState.validate() &&
+                                  _formPno.currentState.validate() &&
+                                  _formPass1.currentState.validate()) {
+                                signUp();
+                              }
+                            },
+                            child:
+                                Text("Signup", style: TextStyle(fontSize: 16)),
+                            shape: RoundedRectangleBorder(),
+                          )),
+                    ],
                   ),
                 ),
               ),

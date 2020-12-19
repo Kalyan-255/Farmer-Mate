@@ -34,39 +34,47 @@ class _DialState extends State<Dial> {
       children: [
         SpeedDialChild(
           child: Icon(Icons.logout, color: Colors.white),
-          backgroundColor: Colors.deepOrange,
+          backgroundColor: Color(0xff490b63),
           onTap: () => logOut(),
           label: 'Logout',
-          labelStyle: TextStyle(fontWeight: FontWeight.w500),
-          labelBackgroundColor: Colors.deepOrangeAccent,
+          labelStyle:
+              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+          labelBackgroundColor: Color(0xff490b63),
         ),
         SpeedDialChild(
           child: Icon(Icons.add_shopping_cart, color: Colors.white),
           backgroundColor: Colors.deepOrange,
           onTap: () => Navigator.push(context, RouteAnimator(RecievedOrders())),
           label: 'Recieved Orders',
-          labelStyle: TextStyle(fontWeight: FontWeight.w500),
+          labelStyle:
+              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: Colors.deepOrangeAccent,
         ),
         SpeedDialChild(
           child: Icon(Icons.shopping_bag, color: Colors.white),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.green[500],
           onTap: () => Navigator.push(context, RouteAnimator(MyProducts())),
           label: 'Your Products',
-          labelStyle: TextStyle(fontWeight: FontWeight.w500),
+          labelStyle:
+              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: Colors.green,
         ),
         SpeedDialChild(
           child: Icon(Icons.person, color: Colors.white),
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.redAccent,
           onTap: () {
             Navigator.push(context, RouteAnimator(ProfilePage()));
           },
           labelWidget: Container(
-            color: Colors.blue,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                color: Colors.redAccent),
             margin: EdgeInsets.only(right: 10),
             padding: EdgeInsets.all(6),
-            child: Text('Profile'),
+            child: Text(
+              'Profile',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ),
       ],

@@ -26,25 +26,41 @@ class MyProductsState extends State<MyProducts> {
         .then((value) => products = value.data()["Products"]);
     print(products);
     products.forEach((element) {
-      getSeller(element);
+      getProduct(element);
     });
   }
 
-  getSeller(String id) async {
+  getProduct(String id) async {
     var seller = Map();
     var fs = FirebaseFirestore.instance;
-    await fs
-        .collection('Items')
-        .doc(id)
-        .get()
-        .then((value) => value.data() != null
-            ? value.data().forEach((key, value) {
-                seller[key] = value;
-              })
-            : print('noData'));
-    Widget x = makePost(seller);
-    wid_ar.add(x);
+    await fs.collection('Items').doc(id).get().then((value) {
+      value.data().forEach((key, value) {
+        seller[key] = value;
+      });
+    });
+    print(seller);
+    wid_ar.add(makePost(seller));
     setState(() {});
+  }
+
+  makeList(DocumentSnapshot m) {
+    List w = List();
+    print(m["Products"]);
+    for (var i in m["Products"]) {
+      w.add(getProduct(i));
+    }
+    return Center(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.95,
+        child: ListView.builder(
+          scrollDirection: Axis.vertical,
+          itemCount: w.length,
+          itemBuilder: (context, index) {
+            return w[index];
+          },
+        ),
+      ),
+    );
   }
 
   Widget makePost(Map seller) {
@@ -112,6 +128,16 @@ class MyProductsState extends State<MyProducts> {
                     ),
                   ),
                 ),
+                // StreamBuilder(
+                //   stream: fs.collection("Sellers").doc(mail).snapshots(),
+                //   builder: (context, snapshot) {
+                //     if (snapshot.data != null) {
+                //       //  print(makeList(snapshot.data));
+                //       return makeList(snapshot.data);
+                //     }
+                //     return Text("Loading");
+                //   },
+                // ),
               ]),
         floatingActionButton: Dial());
   }

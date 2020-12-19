@@ -17,16 +17,24 @@ class _AcceptedOrdersState extends State<AcceptedOrders> {
 
   void initState() {
     super.initState();
-    if (acceptedOrders.isNotEmpty)
-      acceptedOrders.forEach((key, element) {
-        getOrder(key);
-      });
-    else {
+    updateAccepted();
+  }
+
+  updateAccepted() async {
+    await fs
+        .collection("Sellers")
+        .doc(mail)
+        .get()
+        .then((value) => acceptedOrders = value.data()["Accepted Orders"]);
+    if (acceptedOrders.isEmpty)
       wid.add(Text(
         "Sorry you have no active accepted orders",
         style: TextStyle(color: Colors.white),
       ));
-    }
+    acceptedOrders.forEach((key, element) {
+      getOrder(key);
+    });
+    setState(() {});
   }
 
   getOrder(String key) async {
@@ -40,34 +48,55 @@ class _AcceptedOrdersState extends State<AcceptedOrders> {
     setState(() {});
   }
 
-  delProd(String id) {
+  delProd(String id, Map product) async {
+    var sellerNotifications = [];
     del(id);
     acceptedOrders.remove(id);
     fs
         .collection("Sellers")
         .doc(mail)
         .update({"Accepted Orders": acceptedOrders});
+    await fs
+        .collection("Sellers")
+        .doc(product['seller'])
+        .get()
+        .then((value) => sellerNotifications = value.data()["Notifications"]);
+    sellerNotifications.add({
+      "Type": "Order sent",
+      "Disc": "Your" +
+          product["Name"] +
+          " of " +
+          product['Weight'].toString() +
+          "Kg sent to buyer " +
+          mail +
+          " successfully",
+      "Time": DateTime.now().toString()
+    });
+    fs
+        .collection("Sellers")
+        .doc(product["seller"])
+        .update({"Notifications": sellerNotifications});
   }
 
-  Widget makePost(Map seller, String id) {
+  Widget makePost(Map prod, String id) {
     return Container(
       color: Colors.white,
       child: Column(
         children: [
-          Image.network(seller["imUrl"]),
+          Image.network(prod["imUrl"]),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text("Weight:" + seller["Weight"].toString()),
-              Text("Price:" + seller["Price"].toString()),
-              Text(seller["Name"])
+              Text("Weight:" + prod["Weight"].toString()),
+              Text("Price:" + prod["Price"].toString()),
+              Text(prod["Name"])
             ],
           ),
           SizedBox(
-            width: 100,
+            width: 200,
             child: FloatingActionButton(
               child: Text("Product Recieved"),
-              onPressed: delProd(id),
+              onPressed: () => delProd(id, prod),
               shape: RoundedRectangleBorder(),
             ),
           )
@@ -80,7 +109,7 @@ class _AcceptedOrdersState extends State<AcceptedOrders> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Requested Orders"),
+          title: Text("Accepted Orders"),
           backgroundColor: Color(0xff490b63),
         ),
         body: wid.length == 0

@@ -27,7 +27,8 @@ class _DialState2 extends State<Dial2> {
           backgroundColor: Colors.deepOrange,
           onTap: () => Navigator.push(context, RouteAnimator(AcceptedOrders())),
           label: 'Accepted Orders',
-          labelStyle: TextStyle(fontWeight: FontWeight.w500),
+          labelStyle:
+              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: Colors.deepOrangeAccent,
         ),
         SpeedDialChild(
@@ -36,18 +37,26 @@ class _DialState2 extends State<Dial2> {
           onTap: () =>
               Navigator.push(context, RouteAnimator(RequestedOrders())),
           label: 'Requested Orders',
-          labelStyle: TextStyle(fontWeight: FontWeight.w500),
+          labelStyle:
+              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: Colors.green,
         ),
         SpeedDialChild(
           child: Icon(Icons.person, color: Colors.white),
-          backgroundColor: Colors.blue,
-          onTap: () => Navigator.push(context, RouteAnimator(ProfilePage())),
+          backgroundColor: Colors.redAccent,
+          onTap: () {
+            Navigator.push(context, RouteAnimator(ProfilePage()));
+          },
           labelWidget: Container(
-            color: Colors.blue,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                color: Colors.redAccent),
             margin: EdgeInsets.only(right: 10),
             padding: EdgeInsets.all(6),
-            child: Text('Profile'),
+            child: Text(
+              'Profile',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ),
       ],

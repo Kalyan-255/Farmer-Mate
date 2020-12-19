@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:farmer/Screens/Orders/RecievedOrders.dart';
 import 'package:flutter/material.dart';
 import 'package:farmer/main.dart';
 
@@ -16,18 +17,31 @@ class _UserDetailsState extends State<UserDetails> {
   _UserDetailsState(this.prod, this.id);
 
   var seller;
+  // ignore: non_constant_identifier_names
   var seller_recieved = Map();
   Map product = Map();
   List<Widget> wid = List();
   var fs = FirebaseFirestore.instance;
 
   requestProduct() async {
-    Map m = {"Buyer": mail, "Product": id};
-    seller_recieved[id] = mail;
-    fs
-        .collection("Sellers")
-        .doc(prod["seller"])
-        .update({"Recieved Orders": seller_recieved});
+    seller_recieved.containsKey(id)
+        ? seller_recieved[id].add(mail)
+        : seller_recieved[id] = [mail];
+    var sellerNotifications = seller["Notifications"];
+    sellerNotifications.add({
+      "Type": "Order recieved",
+      "Disc": "You recieved an order on " +
+          product['Name'] +
+          " of " +
+          product["Weight"].toString() +
+          " Kg by buyer " +
+          mail,
+      "Time": DateTime.now().toString()
+    });
+    fs.collection("Sellers").doc(prod["seller"]).update({
+      "Recieved Orders": seller_recieved,
+      "Notifications": sellerNotifications
+    });
     requestedOrders[id] = prod["seller"];
     fs
         .collection("Sellers")

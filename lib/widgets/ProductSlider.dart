@@ -5,7 +5,7 @@ import '../Screens/buyer.dart';
 import '../main.dart';
 
 class ProductSlider extends StatefulWidget {
-  final List mp;
+  final Map mp;
   final String cat;
   ProductSlider(this.mp, this.cat);
   @override
@@ -13,11 +13,12 @@ class ProductSlider extends StatefulWidget {
 }
 
 class _ProductSliderState extends State<ProductSlider> {
-  List mp;
+  Map mp;
   String cat;
   _ProductSliderState(this.mp, this.cat);
   @override
   Widget build(BuildContext context) {
+    List keys = mp.keys.toList();
     return Container(
       height: 280,
       child: ListView.builder(
@@ -26,13 +27,14 @@ class _ProductSliderState extends State<ProductSlider> {
         itemBuilder: (context, i) {
           return GestureDetector(
               onTap: () {
-                name = mp[i]['Name'];
-                url = mp[i]['Image'];
+                name = mp[keys[i]]['Name'];
+                url = mp[keys[i]]['Image'];
                 catagory = cat;
                 if (flag)
                   Navigator.push(context, RouteAnimator(FormAdd()));
                 else {
-                  Sellers = mp[i]['Sellers'];
+                  print(mp[keys[i]]['Sellers']);
+                  Sellers = mp[keys[i]]['Sellers'];
                   Navigator.push(context, RouteAnimator(Second()));
                 }
               },
@@ -40,7 +42,6 @@ class _ProductSliderState extends State<ProductSlider> {
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Container(
-                      // color: Colors.white,
                       width: 160,
                       height: 220,
                       decoration: BoxDecoration(
@@ -57,13 +58,13 @@ class _ProductSliderState extends State<ProductSlider> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Text(mp[i]['Name'],
+                          Text(mp[keys[i]]['Name'],
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold)),
                           const SizedBox(
                             height: 20,
                           ),
-                          Image.network(mp[i]['Image']),
+                          Image.network(mp[keys[i]]['Image']),
                         ],
                       )),
                 ),

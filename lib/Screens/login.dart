@@ -82,7 +82,7 @@ class LogState extends State<Log> {
                             height: 50,
                             child: FloatingActionButton(
                               onPressed: () async {
-                                Navigator.pushReplacement(
+                                Navigator.push(
                                     context, RouteAnimator(Signup()));
                               },
                               child: Text("Signup",

@@ -1,5 +1,6 @@
 import 'package:farmer/Screens/Orders/RecievedOrders.dart';
 import 'package:farmer/Screens/Orders/RequestedOrders.dart';
+import 'package:farmer/widgets/EmailVerification.dart';
 import 'package:farmer/widgets/ProductSlider.dart';
 import 'package:farmer/widgets/speedDial2.dart';
 import 'package:farmer/widgets/speed_dial.dart';
@@ -15,7 +16,7 @@ import 'Screens/Orders/products.dart';
 import 'package:farmer/Screens/buyer.dart';
 import 'package:farmer/Screens/profile.dart';
 import 'Screens/login.dart';
-
+import 'Screens/Notifications.dart';
 import 'widgets/routeAnimation.dart';
 
 void main() async {
@@ -35,7 +36,8 @@ void main() async {
       '/requested': (_) => RequestedOrders(),
       '/profile': (_) => ProfilePage(),
       '/login': (_) => Log(),
-      '/wrapper': (_) => Wrapper()
+      '/wrapper': (_) => Wrapper(),
+      '/verify': (_) => Verify()
     },
   ));
 }
@@ -64,21 +66,11 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage> {
   var auth = FirebaseAuth.instance;
-  int c = 0;
-  dynamic ar = Map();
-  var fruits = [];
-  var vegetables = [];
-  var kharif = [];
-  var rabi = [];
-  var types = ["Fruits", "Vegetables", "Kharif Cereals", "Rabi Cereals"];
   var fs = FirebaseFirestore.instance;
-  List<Widget> wid = List();
-  // ignore: non_constant_identifier_names
   @override
   void initState() {
     super.initState();
     if (auth.currentUser != null) {
-      print("Working.....");
       mail = auth.currentUser.email;
     } else
       mail = "kalyanburriwar@gmail.com";
@@ -86,28 +78,13 @@ class MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
-  setData() async {
-    await getData("Fruits", fruits);
-    await getData("Vegetables", vegetables);
-    await getData("Kharif Cereals", kharif);
-    await getData("Rabi Cereals", rabi);
+  Future<void> setData() async {
     await getSeller(mail);
     requestedOrders = seller["Requested Orders"];
     acceptedOrders = seller["Accepted Orders"];
     recievedOrders = seller["Recieved Orders"];
     yourProducts = seller["Products"];
     nickName = seller["Name"];
-  }
-
-  getData(String category, List a) async {
-    var ref = fs.collection("Products").doc(category);
-    ref.get().then((value) {
-      value.data().forEach((key, value) {
-        var v = Map.from(value);
-        a.add(v);
-      });
-      setState(() {});
-    });
   }
 
   getSeller(String mail) async {
@@ -118,18 +95,6 @@ class MyHomePageState extends State<MyHomePage> {
         .then((value) => value.data().forEach((key, value) {
               seller[key] = value;
             }));
-  }
-
-  void add(String mail, String n, double lat, double lon) {
-    fs.collection('Sellers').doc(mail).set(
-      {
-        "Name": n,
-        "Earnings": 0,
-        "Coordinates": {'Latitude': lat, 'Longitude': lon},
-        "Products": [],
-        "Recieved Orders": []
-      },
-    );
   }
 
   buildHead(String h) {
@@ -166,6 +131,109 @@ class MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  makeStream(int i, String cat) {
+    return StreamBuilder(
+      stream: fs.collection("Products").snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.data != null) {
+          var mp = snapshot.data.docs[i].data();
+          List keys = mp.keys.toList();
+          return Container(
+            height: 280,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: mp.length,
+              itemBuilder: (context, i) {
+                return GestureDetector(
+                    onTap: () {
+                      name = mp[keys[i]]['Name'];
+                      url = mp[keys[i]]['Image'];
+                      catagory = cat;
+                      if (flag)
+                        Navigator.push(context, RouteAnimator(FormAdd()));
+                      else {
+                        print(mp[keys[i]]['Sellers']);
+                        Sellers = mp[keys[i]]['Sellers'];
+                        Navigator.push(context, RouteAnimator(Second()));
+                      }
+                    },
+                    child: Column(children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Container(
+                            width: 160,
+                            height: 220,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.5),
+                                  offset: Offset(0.0, 10.0),
+                                  blurRadius: 10.0,
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(mp[keys[i]]['Name'],
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold)),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Image.network(mp[keys[i]]['Image']),
+                              ],
+                            )),
+                      ),
+                    ]));
+              },
+            ),
+          );
+        }
+        return Text("Loading...");
+      },
+    );
+  }
+
+  notificationStream() {
+    return StreamBuilder(
+      stream: fs.collection("Sellers").doc(mail).snapshots(),
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.data != null) {
+          if (snapshot.data["Notifications"].length > 0) {
+            return Stack(children: [
+              IconButton(
+                  icon: Icon(Icons.notifications_sharp,
+                      size: 36, color: Colors.white),
+                  onPressed: () => Navigator.push(
+                      context,
+                      RouteAnimator(
+                          Notifications(snapshot.data["Notifications"])))),
+              Positioned(
+                  right: 9,
+                  top: 15,
+                  child: Icon(
+                    Icons.circle,
+                    size: 12,
+                    color: Colors.redAccent,
+                  ))
+            ]);
+          }
+        }
+        var mp = [];
+        return IconButton(
+            icon:
+                Icon(Icons.notifications_sharp, size: 36, color: Colors.white),
+            onPressed: () =>
+                Navigator.push(context, RouteAnimator(Notifications(mp))));
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -175,7 +243,7 @@ class MyHomePageState extends State<MyHomePage> {
         automaticallyImplyLeading: false,
         actions: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(7.0),
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
                 FloatingActionButton(
@@ -207,18 +275,25 @@ class MyHomePageState extends State<MyHomePage> {
               ],
             ),
           ),
+          SizedBox(
+            width: 10,
+          ),
+          notificationStream(),
+          SizedBox(
+            width: 12,
+          )
         ],
       ),
       body: ListView(scrollDirection: Axis.vertical, children: [
         makeGreeting(),
         buildHead("Fruits"),
-        ProductSlider(fruits, "Fruits"),
+        makeStream(0, "Fruits"),
         buildHead("Vegetables"),
-        ProductSlider(vegetables, "Vegetables"),
+        makeStream(3, "Vegetables"),
         buildHead("Kharif"),
-        ProductSlider(kharif, "Kharif Cereals"),
+        makeStream(1, "Kharif Cereals"),
         buildHead("Rabi"),
-        ProductSlider(rabi, "Rabi Cereals"),
+        makeStream(2, "Rabi Cereals"),
       ]),
       floatingActionButton: flag ? Dial() : Dial2(),
       drawer: new Drawer(

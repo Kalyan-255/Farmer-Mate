@@ -10,29 +10,34 @@ class RecievedOrders extends StatefulWidget {
 }
 
 class _RecievedOrdersState extends State<RecievedOrders> {
-  var recievedOrd = Map();
   var wid = [];
+  var product = Map();
   var fs = FirebaseFirestore.instance;
 
   void initState() {
     super.initState();
-    if (recievedOrders.isNotEmpty)
-      setOrders();
-    else
-      wid.add(Text("You did not recieved any orders"));
-    print(recievedOrd);
-    setState(() {});
+    setRecievedOrders();
   }
 
-  setOrders() async {
+  setRecievedOrders() async {
+    await fs
+        .collection("Sellers")
+        .doc(mail)
+        .get()
+        .then((value) => recievedOrders = value.data()["Recieved Orders"]);
+    setOrders();
+  }
+
+  setOrders() {
     recievedOrders.forEach((key, element) {
       getProduct(key, element);
     });
+    if (recievedOrders.isEmpty)
+      wid.add(Text("You did not recieved any orders"));
     setState(() {});
   }
 
-  getProduct(String id, String buyer) async {
-    var seller = Map();
+  getProduct(String id, List buyers) async {
     var fs = FirebaseFirestore.instance;
     await fs
         .collection('Items')
@@ -40,11 +45,12 @@ class _RecievedOrdersState extends State<RecievedOrders> {
         .get()
         .then((value) => value.data() != null
             ? value.data().forEach((key, value) {
-                seller[key] = value;
+                product[key] = value;
               })
             : print('noData'));
-    Widget x = makePost(id, seller, buyer);
-    wid.add(x);
+    buyers.forEach((el) {
+      wid.add(makePost(id, product, el));
+    });
     setState(() {});
   }
 
@@ -59,13 +65,26 @@ class _RecievedOrdersState extends State<RecievedOrders> {
     yourProducts.remove(id);
     byr["Requested Orders"].remove(id);
     byr["Accepted Orders"][id] = mail;
+    byr["Notifications"].add({
+      "Type": "Order accepted",
+      "Disc": "Your request on order " +
+          product["Name"] +
+          " of weight " +
+          product["Weight"].toString() +
+          "Kg with price " +
+          product["Price"].toString() +
+          "/Kg is accepted by " +
+          mail,
+      "Time": DateTime.now().toString()
+    });
     fs
         .collection("Sellers")
         .doc(mail)
         .update({"Recieved Orders": recievedOrders, "Products": yourProducts});
     fs.collection("Sellers").doc(buyer).update({
       "Requested Orders": byr["Requested Orders"],
-      "Accepted Orders": byr["Accepted Orders"]
+      "Accepted Orders": byr["Accepted Orders"],
+      "Notifications": byr["Notifications"]
     });
     /////
     var x = Map();
@@ -87,21 +106,21 @@ class _RecievedOrdersState extends State<RecievedOrders> {
     fs.collection("Pending").doc(id).set(y);
   }
 
-  Widget makePost(String id, Map seller, String buyer) {
+  Widget makePost(String id, Map product, String buyer) {
     return Container(
       child: Column(
         children: [
-          Image.network(seller["imUrl"]),
+          Image.network(product["imUrl"]),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text(
-                seller["Weight"].toString() + " Kgs",
+                product["Weight"].toString() + " Kgs",
                 style: TextStyle(
                     fontFamily: 'PTSans', fontWeight: FontWeight.w600),
               ),
               Text(
-                seller["Price"].toString() + " Rs/Kg",
+                product["Price"].toString() + " Rs/Kg",
                 style: TextStyle(
                     fontFamily: 'PTSans', fontWeight: FontWeight.w600),
               ),
@@ -118,10 +137,11 @@ class _RecievedOrdersState extends State<RecievedOrders> {
           SizedBox(
             width: 150,
             child: FloatingActionButton(
+              heroTag: buyer,
               child: Text("Accept"),
               shape: RoundedRectangleBorder(),
               onPressed: () =>
-                  acceptOrder(id, buyer, seller["Name"], seller["Category"]),
+                  acceptOrder(id, buyer, product["Name"], product["Category"]),
             ),
           ),
         ],
